@@ -16,42 +16,53 @@
     <div id="root"></div>
 
     <script type="text/babel">
-      const { useState } = React;
+      const { useState, useEffect } = React;
 
       function App() {
-        // Set your real WhatsApp number here (e.g. 2348012345678)
         const WHATSAPP_NUMBER = "2348000000000";
 
-        // Login credentials
-        const ADMIN_USERNAME = "admin";
-        const ADMIN_PASSWORD = "maitama2026";
+        // Admin Auth Credentials (stored in browser local storage or default)
+        const [adminUsername, setAdminUsername] = useState(() => localStorage.getItem("mfm_user") || "admin");
+        const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem("mfm_pass") || "maitama2026");
+
+        // Credentials form state
+        const [newUsernameInput, setNewUsernameInput] = useState("");
+        const [newPasswordInput, setNewPasswordInput] = useState("");
 
         const [view, setView] = useState("store"); 
         const [inputUsername, setInputUsername] = useState("");
         const [inputPassword, setInputPassword] = useState("");
         const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-        // Store inventory state
-        const [products, setProducts] = useState([
-          {
-            id: 1,
-            name: "Fresh Organic Tomatoes (Basket)",
-            price: 8500,
-            image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=60"
-          },
-          {
-            id: 2,
-            name: "Exotic Passion Fruit (1kg)",
-            price: 4200,
-            image: "https://images.unsplash.com/photo-1528825871115-3581a5387919?w=500&auto=format&fit=crop&q=60"
-          },
-          {
-            id: 3,
-            name: "Fluted Pumpkin Greens / Ugu (Bundle)",
-            price: 1500,
-            image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500&auto=format&fit=crop&q=60"
-          }
-        ]);
+        // Persistent Inventory (Saved locally in browser memory)
+        const [products, setProducts] = useState(() => {
+          const saved = localStorage.getItem("mfm_products");
+          return saved ? JSON.parse(saved) : [
+            {
+              id: 1,
+              name: "Fresh Organic Tomatoes (Basket)",
+              price: 8500,
+              image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500&auto=format&fit=crop&q=60"
+            },
+            {
+              id: 2,
+              name: "Exotic Passion Fruit (1kg)",
+              price: 4200,
+              image: "https://images.unsplash.com/photo-1528825871115-3581a5387919?w=500&auto=format&fit=crop&q=60"
+            },
+            {
+              id: 3,
+              name: "Fluted Pumpkin Greens / Ugu (Bundle)",
+              price: 1500,
+              image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500&auto=format&fit=crop&q=60"
+            }
+          ];
+        });
+
+        // Save products on update
+        useEffect(() => {
+          localStorage.setItem("mfm_products", JSON.stringify(products));
+        }, [products]);
 
         // Add Product Form State
         const [newItemName, setNewItemName] = useState("");
@@ -64,12 +75,24 @@
         const [buyerPhone, setBuyerPhone] = useState("");
         const [buyerAddress, setBuyerAddress] = useState("");
 
+        // Handle Image File Upload (Converts local file to Base64 String)
+        const handleImageUpload = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setNewItemImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+
         // Admin Auth Login
         const handleAdminLogin = (e) => {
           e.preventDefault();
           if (
-            (inputUsername.toLowerCase() === ADMIN_USERNAME || inputUsername.toLowerCase() === "maitama") &&
-            (inputPassword === ADMIN_PASSWORD || inputPassword === "admin")
+            inputUsername.trim().toLowerCase() === adminUsername.trim().toLowerCase() &&
+            inputPassword === adminPassword
           ) {
             setIsAuthenticated(true);
             setView("admin_dashboard");
@@ -80,7 +103,23 @@
           }
         };
 
-        // Vendor Action: Add Produce Item
+        // Update Credentials
+        const handleUpdateCredentials = (e) => {
+          e.preventDefault();
+          if (!newUsernameInput || !newPasswordInput) {
+            alert("Please provide both new username and password.");
+            return;
+          }
+          setAdminUsername(newUsernameInput.trim());
+          setAdminPassword(newPasswordInput);
+          localStorage.setItem("mfm_user", newUsernameInput.trim());
+          localStorage.setItem("mfm_pass", newPasswordInput);
+          setNewUsernameInput("");
+          setNewPasswordInput("");
+          alert("✓ Vendor portal credentials updated successfully!");
+        };
+
+        // Add Product
         const handleAddProduct = (e) => {
           e.preventDefault();
           if (!newItemName || !newItemPrice) return;
@@ -96,17 +135,16 @@
           setNewItemName("");
           setNewItemPrice("");
           setNewItemImage("");
-          alert("✓ New item published live to the storefront!");
+          alert("✓ New item published live to storefront!");
         };
 
-        // Vendor Action: Delete Produce Item
+        // Delete Product
         const handleDeleteProduct = (id) => {
-          if (confirm("Are you sure you want to remove this item from the market?")) {
+          if (confirm("Are you sure you want to remove this produce item?")) {
             setProducts(products.filter(item => item.id !== id));
           }
         };
 
-        // Cart Actions
         const addToCart = (product) => {
           setCart([...cart, product]);
         };
@@ -119,7 +157,6 @@
 
         const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
 
-        // Buyer Action: Place Order via WhatsApp
         const handleSendWhatsAppOrder = (e) => {
           e.preventDefault();
           if (!buyerName || !buyerPhone || !buyerAddress) {
@@ -146,7 +183,6 @@
 
         return (
           <div className="max-w-4xl mx-auto p-4 md:p-6">
-            {/* Header */}
             <header className="flex justify-between items-center bg-emerald-800 text-white p-4 rounded-xl shadow-md mb-6">
               <div>
                 <h1 className="text-xl md:text-2xl font-bold">Maitama Farmers Market Direct</h1>
@@ -171,7 +207,7 @@
               </div>
             </header>
 
-            {/* STOREFRONT VIEW */}
+            {/* STOREFRONT */}
             {view === "store" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-4">
@@ -275,7 +311,7 @@
               </div>
             )}
 
-            {/* VENDOR LOGIN VIEW */}
+            {/* LOGIN PORTAL */}
             {view === "admin_login" && (
               <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-sm border border-slate-200 mt-8">
                 <h2 className="text-xl font-bold text-slate-800 mb-1">Protected Vendor Portal</h2>
@@ -287,7 +323,7 @@
                     <input
                       type="text"
                       required
-                      placeholder="Enter username (e.g. admin)"
+                      placeholder="Enter username"
                       value={inputUsername}
                       onChange={(e) => setInputUsername(e.target.value)}
                       className="w-full p-2 border rounded-lg text-sm bg-slate-50"
@@ -316,13 +352,13 @@
               </div>
             )}
 
-            {/* VENDOR DASHBOARD VIEW */}
+            {/* DASHBOARD */}
             {view === "admin_dashboard" && (
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
                 <div className="flex justify-between items-center border-b pb-4">
                   <div>
                     <h2 className="text-xl font-bold text-slate-800">Vendor Management Dashboard</h2>
-                    <p className="text-xs text-slate-500">Add new items or remove existing items from the market</p>
+                    <p className="text-xs text-slate-500">Add produce, upload photos, and update portal login credentials</p>
                   </div>
                   <button
                     onClick={() => {
@@ -365,26 +401,66 @@
                     </div>
                   </div>
 
+                  {/* Image Upload Area */}
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">Photo Image URL (Optional)</label>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">Upload Photo from Phone/Computer</label>
                     <input
-                      type="url"
-                      placeholder="e.g. https://images.unsplash.com/photo-..."
-                      value={newItemImage}
-                      onChange={(e) => setNewItemImage(e.target.value)}
-                      className="w-full p-2 border rounded-lg text-xs bg-white"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 cursor-pointer"
                     />
                   </div>
+
+                  {newItemImage && (
+                    <div className="mt-2">
+                      <p className="text-[11px] font-semibold text-slate-500 mb-1">Photo Preview:</p>
+                      <img src={newItemImage} alt="Preview" className="h-24 w-24 object-cover rounded-lg border" />
+                    </div>
+                  )}
 
                   <button
                     type="submit"
                     className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-lg text-xs transition"
                   >
-                    Publish to Storefront
+                    Publish Item Live
                   </button>
                 </form>
 
-                {/* Active Items Management */}
+                {/* Change Credentials Form */}
+                <form onSubmit={handleUpdateCredentials} className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <h3 className="text-sm font-bold text-slate-700">🔑 Change Vendor Portal Username & Password</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">New Username</label>
+                      <input
+                        type="text"
+                        placeholder="Enter new username"
+                        value={newUsernameInput}
+                        onChange={(e) => setNewUsernameInput(e.target.value)}
+                        className="w-full p-2 border rounded-lg text-xs bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">New Password</label>
+                      <input
+                        type="password"
+                        placeholder="Enter new password"
+                        value={newPasswordInput}
+                        onChange={(e) => setNewPasswordInput(e.target.value)}
+                        className="w-full p-2 border rounded-lg text-xs bg-white"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-lg text-xs transition"
+                  >
+                    Save New Credentials
+                  </button>
+                </form>
+
+                {/* Live Inventory List */}
                 <div>
                   <h3 className="text-sm font-bold text-slate-700 mb-3">Live Market Items ({products.length})</h3>
                   <div className="space-y-2">
