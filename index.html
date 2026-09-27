@@ -4,19 +4,159 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Maitama Farmers Market Direct</title>
-    <!-- React, ReactDOM, Tailwind CSS & Babel -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Babel Compiler -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
-  <body>
+  <body class="bg-slate-50 min-h-screen text-slate-800 font-sans">
     <div id="root"></div>
-    <!-- Load component file -->
-    <script type="text/babel" src="./Maitama_farmers_market_direct_dispatch.tsx"></script>
+
     <script type="text/babel">
+      const { useState } = React;
+
+      function App() {
+        const [items, setItems] = useState([
+          { id: 1, name: "Fresh Organic Tomatoes (Basket)", price: 8500, vendor: "Maitama Fresh Direct", icon: "🍅", category: "Vegetables" },
+          { id: 2, name: "Exotic Passion Fruit (1kg)", price: 4200, vendor: "Abuja Tropicals", icon: "🥭", category: "Fruits" },
+          { id: 3, name: "Fresh Fluted Pumpkin Greens (Ugu)", price: 1500, vendor: "Mama Nkechi Spices", icon: "🥬", category: "Leafy Greens" },
+          { id: 4, name: "Organic Habanero Peppers (Rodo)", price: 2000, vendor: "Maitama Fresh Direct", icon: "🌶️", category: "Spices" }
+        ]);
+
+        const [cart, setCart] = useState([]);
+        const [selectedNeighborhood, setSelectedNeighborhood] = useState("Maitama");
+        const [isPaid, setIsPaid] = useState(false);
+
+        const deliveryRates = {
+          "Maitama": 1200,
+          "Wuse II": 1500,
+          "Gwarinpa": 2500,
+          "Asokoro": 1800,
+          "Jabi": 2000,
+          "Lugbe": 3500
+        };
+
+        const addToCart = (item) => {
+          setCart([...cart, item]);
+        };
+
+        const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+        const deliveryFee = cart.length > 0 ? deliveryRates[selectedNeighborhood] : 0;
+        const total = subtotal + deliveryFee;
+
+        return (
+          <div className="max-w-4xl mx-auto p-4 md:p-6">
+            {/* Header */}
+            <header className="flex justify-between items-center bg-emerald-700 text-white p-4 rounded-xl shadow-md mb-6">
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+                  <span>🚜</span> Maitama Farmers Market Direct
+                </h1>
+                <p className="text-emerald-100 text-xs md:text-sm">Abuja Fresh Produce & Fast Dispatch</p>
+              </div>
+              <div className="bg-emerald-800 px-3 py-1.5 rounded-lg text-sm font-semibold">
+                🛒 Cart ({cart.length})
+              </div>
+            </header>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Product Catalog */}
+              <div className="md:col-span-2 space-y-4">
+                <h2 className="text-lg font-bold text-slate-700">Consecutive Produce Listings</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {items.map((item) => (
+                    <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                      <div>
+                        <div className="text-4xl mb-2">{item.icon}</div>
+                        <h3 className="font-bold text-slate-800">{item.name}</h3>
+                        <p className="text-xs text-slate-500 mb-2">Vendor: {item.vendor}</p>
+                        <p className="text-emerald-600 font-bold text-lg">₦{item.price.toLocaleString()}</p>
+                      </div>
+                      <button
+                        onClick={() => addToCart(item)}
+                        className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-lg text-sm transition"
+                      >
+                        Add to Order
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Order & Dispatch Calculation */}
+              <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 h-fit space-y-4">
+                <h2 className="text-lg font-bold text-slate-700 border-b pb-2">Order Summary</h2>
+
+                {cart.length === 0 ? (
+                  <p className="text-sm text-slate-400 py-4 text-center">No items selected yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {cart.map((item, index) => (
+                      <div key={index} className="flex justify-between text-xs text-slate-600 border-b pb-1">
+                        <span>{item.name}</span>
+                        <span className="font-semibold">₦{item.price.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="pt-2 border-t space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">Select Abuja Neighborhood (Bolt Ride)</label>
+                    <select
+                      value={selectedNeighborhood}
+                      onChange={(e) => setSelectedNeighborhood(e.target.value)}
+                      className="w-full p-2 border border-slate-300 rounded-lg text-sm bg-slate-50"
+                    >
+                      {Object.keys(deliveryRates).map((area) => (
+                        <option key={area} value={area}>{area} (₦{deliveryRates[area].toLocaleString()})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="text-xs space-y-1 text-slate-600 pt-1">
+                    <div className="flex justify-between">
+                      <span>Subtotal:</span>
+                      <span>₦{subtotal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Bolt Delivery Fee:</span>
+                      <span>₦{deliveryFee.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-slate-800 text-sm pt-1 border-t">
+                      <span>Total:</span>
+                      <span className="text-emerald-600">₦{total.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {!isPaid ? (
+                    <button
+                      disabled={cart.length === 0}
+                      onClick={() => setIsPaid(true)}
+                      className={`w-full py-2.5 rounded-lg text-sm font-bold text-white transition ${
+                        cart.length === 0 ? 'bg-slate-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
+                    >
+                      Pay via Paystack (Simulated)
+                    </button>
+                  ) : (
+                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-lg text-xs space-y-1">
+                      <p className="font-bold">✓ Payment Successful!</p>
+                      <p>Dispatching Bolt Rider from Maitama Market to {selectedNeighborhood}...</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       const root = ReactDOM.createRoot(document.getElementById('root'));
       root.render(<App />);
     </script>
