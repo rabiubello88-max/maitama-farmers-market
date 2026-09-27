@@ -19,7 +19,8 @@
       const { useState, useEffect } = React;
 
       function App() {
-        const WHATSAPP_NUMBER = "2348000000000";
+        // YOUR BACK-END WHATSAPP NUMBER (07037700658 formatted for WhatsApp)
+        const WHATSAPP_NUMBER = "2347037700658";
 
         // Admin Auth Credentials
         const [adminUsername, setAdminUsername] = useState(() => localStorage.getItem("mfm_user") || "admin");
@@ -33,7 +34,7 @@
         const [inputPassword, setInputPassword] = useState("");
         const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-        // Persistent Inventory (Saved locally in browser memory)
+        // Persistent Inventory
         const [products, setProducts] = useState(() => {
           try {
             const saved = localStorage.getItem("mfm_products");
@@ -62,12 +63,11 @@
           }
         });
 
-        // Save products with quota safety
         useEffect(() => {
           try {
             localStorage.setItem("mfm_products", JSON.stringify(products));
           } catch (err) {
-            console.error("Storage full, item kept in session memory:", err);
+            console.error("Storage full:", err);
           }
         }, [products]);
 
@@ -82,7 +82,6 @@
         const [buyerPhone, setBuyerPhone] = useState("");
         const [buyerAddress, setBuyerAddress] = useState("");
 
-        // Compress image file to avoid exceeding storage limit
         const handleImageUpload = (e) => {
           const file = e.target.files[0];
           if (!file) return;
@@ -108,7 +107,6 @@
           reader.readAsDataURL(file);
         };
 
-        // Admin Auth Login
         const handleAdminLogin = (e) => {
           e.preventDefault();
           const enteredUser = inputUsername.trim().toLowerCase();
@@ -127,7 +125,6 @@
           }
         };
 
-        // Update Credentials
         const handleUpdateCredentials = (e) => {
           e.preventDefault();
           if (!newUsernameInput || !newPasswordInput) {
@@ -143,7 +140,6 @@
           alert("✓ Vendor portal credentials updated successfully!");
         };
 
-        // Add Product
         const handleAddProduct = (e) => {
           e.preventDefault();
           if (!newItemName || !newItemPrice) {
@@ -170,7 +166,6 @@
           alert("✓ '" + newEntry.name + "' has been successfully published to the market!");
         };
 
-        // Delete Product
         const handleDeleteProduct = (id) => {
           if (confirm("Are you sure you want to remove this item?")) {
             setProducts(products.filter(item => item.id !== id));
@@ -189,23 +184,24 @@
 
         const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
 
+        // DISPATCH ORDER TO YOUR WHATSAPP NUMBER
         const handleSendWhatsAppOrder = (e) => {
           e.preventDefault();
           if (!buyerName || !buyerPhone || !buyerAddress) {
-            alert("Please complete all details!");
+            alert("Please complete all delivery details!");
             return;
           }
 
-          const itemsList = cart.map((item, i) => `${i + 1}. ${item.name} - NGN ${item.price.toLocaleString()}`).join("\n");
+          const itemsList = cart.map((item, i) => `${i + 1}. ${item.name} - ₦${item.price.toLocaleString()}`).join("\n");
           
           const textMessage = `*NEW MARKET ORDER - MAITAMA FARMERS MARKET*\n\n` +
             `*Customer Name:* ${buyerName}\n` +
-            `*Phone:* ${buyerPhone}\n` +
-            `*Delivery Address:* ${buyerAddress}\n\n` +
-            `*SELECTED PRODUCE:*\n${itemsList}\n\n` +
-            `*Total Amount:* NGN ${totalAmount.toLocaleString()}\n` +
-            `*Delivery Method:* Dispatch Bolt Rider (Customer pays rider fee on delivery)\n\n` +
-            `Please send bank transfer details!`;
+            `*Phone Number:* ${buyerPhone}\n` +
+            `*Abuja Delivery Address:* ${buyerAddress}\n\n` +
+            `*ORDERED PRODUCE:*\n${itemsList}\n\n` +
+            `*Total Amount:* ₦${totalAmount.toLocaleString()}\n` +
+            `*Delivery Note:* Dispatch Bolt Rider (Fee paid to rider on delivery)\n\n` +
+            `Please send payment bank details to confirm this order!`;
 
           const encodedMessage = encodeURIComponent(textMessage);
           const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
@@ -446,7 +442,7 @@
 
                   {newItemImage && (
                     <div className="mt-2">
-                      <p className="text-[11px] font-semibold text-slate-500 mb-1">Compressed Photo Preview:</p>
+                      <p className="text-[11px] font-semibold text-slate-500 mb-1">Photo Preview:</p>
                       <img src={newItemImage} alt="Preview" className="h-24 w-24 object-cover rounded-lg border" />
                     </div>
                   )}
