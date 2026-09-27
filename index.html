@@ -19,7 +19,6 @@
       const { useState, useEffect } = React;
 
       function App() {
-        // YOUR BACK-END WHATSAPP NUMBER (07037700658 formatted for WhatsApp)
         const WHATSAPP_NUMBER = "2347037700658";
 
         // Admin Auth Credentials
@@ -184,7 +183,13 @@
 
         const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
 
-        // DISPATCH ORDER TO YOUR WHATSAPP NUMBER
+        const scrollToCart = () => {
+          const cartElement = document.getElementById("cart-section");
+          if (cartElement) {
+            cartElement.scrollIntoView({ behavior: "smooth" });
+          }
+        };
+
         const handleSendWhatsAppOrder = (e) => {
           e.preventDefault();
           if (!buyerName || !buyerPhone || !buyerAddress) {
@@ -211,25 +216,42 @@
 
         return (
           <div className="max-w-4xl mx-auto p-4 md:p-6">
+            {/* TOP HEADER WITH MOBILE BASKET BUTTON */}
             <header className="flex justify-between items-center bg-emerald-800 text-white p-4 rounded-xl shadow-md mb-6">
               <div>
-                <h1 className="text-xl md:text-2xl font-bold">Maitama Farmers Market Direct</h1>
+                <h1 className="text-lg md:text-2xl font-bold">Maitama Farmers Market Direct</h1>
                 <p className="text-emerald-200 text-xs">Fresh Abuja Produce & Fast Bolt Delivery</p>
               </div>
-              <div>
+
+              <div className="flex items-center gap-2">
+                {/* Mobile Basket Button */}
+                {view === "store" && (
+                  <button
+                    onClick={scrollToCart}
+                    className="relative bg-emerald-700 hover:bg-emerald-600 text-white p-2.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
+                    title="View Basket"
+                  >
+                    🛒
+                    <span className="bg-amber-400 text-emerald-950 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
+                      {cart.length}
+                    </span>
+                  </button>
+                )}
+
+                {/* Portal Toggle Button */}
                 {view === "store" ? (
                   <button
                     onClick={() => setView(isAuthenticated ? "admin_dashboard" : "admin_login")}
-                    className="bg-emerald-950 hover:bg-black text-xs px-3 py-2 rounded-lg font-semibold transition flex items-center gap-1"
+                    className="bg-emerald-950 hover:bg-black text-xs px-3 py-2.5 rounded-lg font-semibold transition flex items-center gap-1"
                   >
-                    🔒 Vendor Portal
+                    🔒 <span className="hidden sm:inline">Vendor</span> Portal
                   </button>
                 ) : (
                   <button
                     onClick={() => setView("store")}
                     className="bg-emerald-700 hover:bg-emerald-600 text-xs px-3 py-2 rounded-lg font-semibold transition"
                   >
-                    ← Back to Storefront
+                    ← Back
                   </button>
                 )}
               </div>
@@ -261,8 +283,12 @@
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 h-fit space-y-4">
-                  <h2 className="text-lg font-bold text-slate-700 border-b pb-2">Your Basket ({cart.length})</h2>
+                {/* CART SECTION */}
+                <div id="cart-section" className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 h-fit space-y-4">
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <h2 className="text-lg font-bold text-slate-700">Your Basket ({cart.length})</h2>
+                    <span className="text-xl">🛒</span>
+                  </div>
 
                   {cart.length === 0 ? (
                     <p className="text-sm text-slate-400 py-4 text-center">Select items from market list to order.</p>
@@ -277,7 +303,7 @@
                               <button
                                 type="button"
                                 onClick={() => removeFromCart(index)}
-                                className="text-red-500 font-bold"
+                                className="text-red-500 font-bold text-sm px-1"
                               >
                                 ×
                               </button>
