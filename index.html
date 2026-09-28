@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Maitama Farmers Market Direct</title>
     
-    <!-- FAVICON (Circular Produce Basket Icon) -->
+    <!-- FAVICON -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23065f46'/><circle cx='50' cy='50' r='45' fill='none' stroke='%23fbbf24' stroke-width='3'/><text x='50' y='62' font-size='42' text-anchor='middle'>🧺</text></svg>" />
 
     <!-- Tailwind CSS -->
@@ -28,13 +28,10 @@
       // YOUR SUPABASE CREDENTIALS
       // ==========================================
       const SUPABASE_URL = "https://nwerrsbfpupjntvtezjo.supabase.co";
-      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53ZXJyc2JmcHVwam50dnRlempvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1NDE4NzAsImV4cCI6MjEwNjExNzg3MH0.pFYIHtx-tuBIakhQUwnMXGKKZrV0Vzje9BToKZfhez4";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im53ZXJyc2JmcHVwam50dnRlempvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1NDE4NzAsImV4cCI6IZEwNjExNzg3MH0.pFYIHtx-tuBIakhQUwnMXGKKZrV0Vzje9BToKZfhez4";
       
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       const WHATSAPP_NUMBER = "2347037700658";
-
-      // LOGO IMAGE URL / BASE64
-      const MARKET_LOGO_URL = "https://i.ibb.co/vzG4q34/maitama-logo.png"; // Fallback URL or embedded image
 
       function App() {
         const [adminUsername, setAdminUsername] = useState(() => localStorage.getItem("mfm_user") || "admin");
@@ -251,19 +248,24 @@
 
         return (
           <div className="max-w-4xl mx-auto p-4 md:p-6">
-            {/* TOP HEADER WITH BRAND LOGO */}
+            {/* TOP HEADER WITH EMBEDDED HIGH-RES BADGE LOGO */}
             <header className="flex justify-between items-center bg-emerald-900 text-white p-3 md:p-4 rounded-xl shadow-md mb-6">
               <div className="flex items-center gap-3">
-                <img 
-                  src="https://i.ibb.co/vzG4q34/maitama-logo.png" 
-                  onError={(e) => {
-                    // Fallback to stylized SVG badge if image load fails
-                    e.target.onerror = null;
-                    e.target.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23065f46'/><text x='50' y='65' font-size='50' text-anchor='middle'>🧺</text></svg>";
-                  }}
-                  alt="Maitama Farmers Market Logo" 
-                  className="w-12 h-12 md:w-16 md:h-16 object-contain rounded-lg bg-white p-0.5 shadow-sm" 
-                />
+                <div className="w-12 h-12 md:w-16 md:h-16 flex-shrink-0 bg-white rounded-xl p-1 shadow-inner flex items-center justify-center">
+                  <svg viewBox="0 0 200 200" className="w-full h-full">
+                    <circle cx="100" cy="100" r="95" fill="#065f46" stroke="#fbbf24" strokeWidth="4" />
+                    <circle cx="100" cy="100" r="85" fill="none" stroke="#047857" strokeWidth="2" strokeDasharray="4,4" />
+                    <path d="M 30,130 Q 100,70 170,130 Z" fill="#15803d" />
+                    <circle cx="100" cy="90" r="22" fill="#fbbf24" />
+                    <path d="M 60,120 Q 100,100 140,120 L 130,150 Q 100,160 70,150 Z" fill="#d97706" />
+                    <circle cx="85" cy="115" r="12" fill="#ef4444" />
+                    <circle cx="115" cy="115" r="12" fill="#f97316" />
+                    <path d="M 100,95 Q 80,105 100,118 Q 120,105 100,95 Z" fill="#10b981" />
+                    <rect x="30" y="145" width="140" height="25" rx="6" fill="#022c22" stroke="#fbbf24" strokeWidth="1.5" />
+                    <text x="100" y="162" fontFamily="Arial, sans-serif" fontSize="13" fontWeight="bold" fill="#ffffff" textAnchor="middle" letterSpacing="1">MAITAMA</text>
+                  </svg>
+                </div>
+
                 <div>
                   <h1 className="text-base md:text-xl font-extrabold tracking-tight">Maitama Farmers Market Direct</h1>
                   <p className="text-emerald-200 text-[11px] md:text-xs">Fresh Abuja Produce & Fast Bolt Delivery</p>
@@ -354,7 +356,6 @@
                               <span className="text-[10px] text-slate-500">₦{Number(item.price).toLocaleString()} each</span>
                             </div>
 
-                            {/* Quantity Controls */}
                             <div className="flex items-center space-x-1.5 bg-slate-100 rounded-md px-1.5 py-0.5">
                               <button
                                 type="button"
