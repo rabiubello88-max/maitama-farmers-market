@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Maitama Farmers Market Direct</title>
+    
+    <!-- FAVICON (Circular Produce Basket Icon) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23065f46'/><circle cx='50' cy='50' r='45' fill='none' stroke='%23fbbf24' stroke-width='3'/><text x='50' y='62' font-size='42' text-anchor='middle'>🧺</text></svg>" />
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
@@ -29,6 +33,9 @@
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       const WHATSAPP_NUMBER = "2347037700658";
 
+      // LOGO IMAGE URL / BASE64
+      const MARKET_LOGO_URL = "https://i.ibb.co/vzG4q34/maitama-logo.png"; // Fallback URL or embedded image
+
       function App() {
         const [adminUsername, setAdminUsername] = useState(() => localStorage.getItem("mfm_user") || "admin");
         const [adminPassword, setAdminPassword] = useState(() => localStorage.getItem("mfm_pass") || "maitama2026");
@@ -44,7 +51,6 @@
         const [products, setProducts] = useState([]);
         const [loading, setLoading] = useState(true);
 
-        // Fetch products from Supabase & Subscribe to Realtime Updates
         useEffect(() => {
           fetchProducts();
 
@@ -245,11 +251,23 @@
 
         return (
           <div className="max-w-4xl mx-auto p-4 md:p-6">
-            {/* TOP HEADER */}
-            <header className="flex justify-between items-center bg-emerald-800 text-white p-4 rounded-xl shadow-md mb-6">
-              <div>
-                <h1 className="text-lg md:text-2xl font-bold">Maitama Farmers Market Direct</h1>
-                <p className="text-emerald-200 text-xs">Fresh Abuja Produce & Fast Bolt Delivery</p>
+            {/* TOP HEADER WITH BRAND LOGO */}
+            <header className="flex justify-between items-center bg-emerald-900 text-white p-3 md:p-4 rounded-xl shadow-md mb-6">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="https://i.ibb.co/vzG4q34/maitama-logo.png" 
+                  onError={(e) => {
+                    // Fallback to stylized SVG badge if image load fails
+                    e.target.onerror = null;
+                    e.target.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23065f46'/><text x='50' y='65' font-size='50' text-anchor='middle'>🧺</text></svg>";
+                  }}
+                  alt="Maitama Farmers Market Logo" 
+                  className="w-12 h-12 md:w-16 md:h-16 object-contain rounded-lg bg-white p-0.5 shadow-sm" 
+                />
+                <div>
+                  <h1 className="text-base md:text-xl font-extrabold tracking-tight">Maitama Farmers Market Direct</h1>
+                  <p className="text-emerald-200 text-[11px] md:text-xs">Fresh Abuja Produce & Fast Bolt Delivery</p>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -269,7 +287,7 @@
                 {view === "store" ? (
                   <button
                     onClick={() => setView(isAuthenticated ? "admin_dashboard" : "admin_login")}
-                    className="bg-emerald-950 hover:bg-black text-xs px-3 py-2.5 rounded-lg font-semibold transition flex items-center gap-1"
+                    className="bg-emerald-950 hover:bg-black text-xs px-3 py-2.5 rounded-lg font-semibold transition flex items-center gap-1 border border-emerald-700"
                   >
                     🔒 <span className="hidden sm:inline">Vendor</span> Portal
                   </button>
