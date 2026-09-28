@@ -124,6 +124,27 @@
           }
         };
 
+        const handleUpdateCredentials = (e) => {
+          e.preventDefault();
+          if (!newUsernameInput.trim() || !newPasswordInput.trim()) {
+            alert("Please enter both a new username and password!");
+            return;
+          }
+
+          const updatedUser = newUsernameInput.trim();
+          const updatedPass = newPasswordInput.trim();
+
+          setAdminUsername(updatedUser);
+          setAdminPassword(updatedPass);
+
+          localStorage.setItem("mfm_user", updatedUser);
+          localStorage.setItem("mfm_pass", updatedPass);
+
+          setNewUsernameInput("");
+          setNewPasswordInput("");
+          alert("✓ Credentials updated successfully! Use your new details on next login.");
+        };
+
         const handleAddProduct = async (e) => {
           e.preventDefault();
           if (!newItemName || !newItemPrice) {
@@ -158,7 +179,6 @@
           }
         };
 
-        // GROUPED CART LOGIC: Increments quantity if item already exists
         const addToCart = (product) => {
           setCart((prevCart) => {
             const existingIndex = prevCart.findIndex((item) => item.id === product.id);
@@ -171,7 +191,6 @@
           });
         };
 
-        // Increase / Decrease Quantity handler
         const updateQuantity = (id, delta) => {
           setCart((prevCart) => {
             return prevCart
@@ -186,12 +205,10 @@
           });
         };
 
-        // Remove item completely from cart
         const removeFromCart = (id) => {
           setCart((prevCart) => prevCart.filter((item) => item.id !== id));
         };
 
-        // Calculate total price and total count across all quantities
         const totalAmount = cart.reduce((sum, item) => sum + item.price * (item.qty || 1), 0);
         const totalCartItemsCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
 
@@ -464,6 +481,43 @@
                     Log Out
                   </button>
                 </div>
+
+                {/* UPDATE LOGIN CREDENTIALS FORM */}
+                <form onSubmit={handleUpdateCredentials} className="space-y-4 bg-amber-50/60 p-4 rounded-xl border border-amber-200">
+                  <h3 className="text-sm font-bold text-slate-800">🔑 Update Portal Login Credentials</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">New Username</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder={`Current: ${adminUsername}`}
+                        value={newUsernameInput}
+                        onChange={(e) => setNewUsernameInput(e.target.value)}
+                        className="w-full p-2 border rounded-lg text-xs bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">New Password</label>
+                      <input
+                        type="password"
+                        required
+                        placeholder="Enter new password"
+                        value={newPasswordInput}
+                        onChange={(e) => setNewPasswordInput(e.target.value)}
+                        className="w-full p-2 border rounded-lg text-xs bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-lg text-xs transition"
+                  >
+                    Save New Credentials
+                  </button>
+                </form>
 
                 {/* Add New Item Form */}
                 <form onSubmit={handleAddProduct} className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
